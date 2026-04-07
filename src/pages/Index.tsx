@@ -1,5 +1,7 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Icon from "@/components/ui/icon";
+import RadioPlayer from "@/components/RadioPlayer";
+import MusicPlayer from "@/components/MusicPlayer";
 
 const HERO_IMAGE = "https://cdn.poehali.dev/projects/3bff46a9-4c21-4377-aa90-8d240bb05750/files/14f8084c-f82e-4458-86f0-5e1228f150a1.jpg";
 const ARTIST_IMAGE = "https://cdn.poehali.dev/projects/3bff46a9-4c21-4377-aa90-8d240bb05750/files/8efd2129-8f57-4fd7-af42-28ef9a0b28fe.jpg";
@@ -64,35 +66,15 @@ function SectionTitle({ label, title, subtitle }: { label: string; title: string
   );
 }
 
-const RADIO_URL = "http://uk4freenew.listen2myradio.com:23326/;";
-
 export default function Index() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [radioPlaying, setRadioPlaying] = useState(false);
-  const [radioLoading, setRadioLoading] = useState(false);
-  const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-
-  const toggleRadio = () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    if (radioPlaying) {
-      audio.pause();
-      setRadioPlaying(false);
-    } else {
-      setRadioLoading(true);
-      audio.src = RADIO_URL;
-      audio.play()
-        .then(() => { setRadioPlaying(true); setRadioLoading(false); })
-        .catch(() => setRadioLoading(false));
-    }
-  };
 
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "var(--dark-base)", color: "var(--gold-pale)", fontFamily: "Raleway, sans-serif", overflowX: "hidden" }}>
@@ -106,42 +88,11 @@ export default function Index() {
         borderBottom: scrolled ? "1px solid rgba(201,168,76,0.15)" : "none",
       }}>
         <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "20px 24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <button onClick={toggleRadio} style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: "12px", padding: 0 }}>
-            <div style={{
-              position: "relative", width: "36px", height: "36px", borderRadius: "50%",
-              border: `1px solid ${radioPlaying ? "var(--gold)" : "rgba(201,168,76,0.4)"}`,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              transition: "all 0.3s ease",
-              boxShadow: radioPlaying ? "0 0 16px rgba(201,168,76,0.5)" : "none",
-              background: radioPlaying ? "rgba(201,168,76,0.12)" : "transparent",
-            }}>
-              {radioLoading ? (
-                <div style={{ width: "14px", height: "14px", border: "2px solid var(--gold)", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
-              ) : radioPlaying ? (
-                <div style={{ display: "flex", gap: "2px", alignItems: "center" }}>
-                  {[1,2,3].map(i => (
-                    <div key={i} style={{ width: "3px", background: "var(--gold)", borderRadius: "2px", animation: `barPulse 0.8s ease-in-out ${i * 0.15}s infinite alternate`, height: `${6 + i * 3}px` }} />
-                  ))}
-                </div>
-              ) : (
-                <Icon name="Play" size={13} style={{ color: "var(--gold)", marginLeft: "2px" }} />
-              )}
-              {radioPlaying && (
-                <div style={{ position: "absolute", inset: "-4px", borderRadius: "50%", border: "1px solid rgba(201,168,76,0.3)", animation: "radioRing 1.5s ease-out infinite" }} />
-              )}
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <div className="font-display gold-shimmer" style={{ fontSize: "1.5rem", fontWeight: 300, lineHeight: 1 }}>
+              Волны Музыки
             </div>
-            <div>
-              <div className="font-display gold-shimmer" style={{ fontSize: "1.5rem", fontWeight: 300, lineHeight: 1 }}>
-                Волны Музыки
-              </div>
-              {radioPlaying && (
-                <div style={{ fontSize: "0.55rem", letterSpacing: "0.2rem", color: "var(--gold)", opacity: 0.7, marginTop: "2px" }}>
-                  ● РАДИО В ЭФИРЕ
-                </div>
-              )}
-            </div>
-          </button>
-          <audio ref={audioRef} />
+          </div>
           <div className="hidden md:flex" style={{ alignItems: "center", gap: "40px" }}>
             {navLinks.map((link) => (
               <a key={link} href={`#${link.toLowerCase().replace(" ", "-")}`}
@@ -384,6 +335,11 @@ export default function Index() {
 
       <div className="gold-line" style={{ opacity: 0.25 }} />
 
+      {/* MUSIC PLAYER */}
+      <MusicPlayer />
+
+      <div className="gold-line" style={{ opacity: 0.25 }} />
+
       {/* REVIEWS */}
       <Section className="py-32 px-6" style={{ background: "var(--dark-card)" }}>
         <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
@@ -460,8 +416,11 @@ export default function Index() {
         </div>
       </Section>
 
+      {/* RADIO PLAYER */}
+      <RadioPlayer />
+
       {/* FOOTER */}
-      <footer style={{ borderTop: "1px solid rgba(201,168,76,0.12)", padding: "40px 24px" }}>
+      <footer style={{ borderTop: "1px solid rgba(201,168,76,0.12)", padding: "40px 24px", paddingBottom: "88px" }}>
         <div style={{ maxWidth: "1200px", margin: "0 auto", display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: "24px" }}>
           <p className="font-display gold-shimmer" style={{ fontSize: "1.4rem", fontWeight: 300 }}>Волны Музыки</p>
           <p style={{ fontSize: "0.6rem", letterSpacing: "0.15rem", opacity: 0.25 }}>© 2026 ВОЛНЫ МУЗЫКИ. ВСЕ ПРАВА ЗАЩИЩЕНЫ.</p>
