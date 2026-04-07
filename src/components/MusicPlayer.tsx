@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import Icon from "@/components/ui/icon";
+import UploadTrack from "@/components/UploadTrack";
 
 export interface Track {
   id: number;
@@ -29,6 +30,7 @@ function formatTime(sec: number) {
 }
 
 export default function MusicPlayer() {
+  const [playlist, setPlaylist] = useState<Track[]>(PLAYLIST);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -39,9 +41,13 @@ export default function MusicPlayer() {
   const [filter, setFilter] = useState("Все");
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  const genres = ["Все", ...Array.from(new Set(PLAYLIST.map(t => t.genre)))];
-  const filtered = filter === "Все" ? PLAYLIST : PLAYLIST.filter(t => t.genre === filter);
-  const current = PLAYLIST[currentIdx];
+  const addTrack = (track: Track) => {
+    setPlaylist(prev => [...prev, track]);
+  };
+
+  const genres = ["Все", ...Array.from(new Set(playlist.map(t => t.genre)))];
+  const filtered = filter === "Все" ? playlist : playlist.filter(t => t.genre === filter);
+  const current = playlist[currentIdx] ?? playlist[0];
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -64,7 +70,7 @@ export default function MusicPlayer() {
     if (!audio) return;
     setCurrentIdx(idx);
     setPlaying(true);
-    audio.src = PLAYLIST[idx].src;
+    audio.src = playlist[idx].src;
     audio.play().catch(() => setPlaying(false));
   };
 
@@ -81,16 +87,16 @@ export default function MusicPlayer() {
   };
 
   const prev = () => {
-    const idx = (currentIdx - 1 + PLAYLIST.length) % PLAYLIST.length;
+    const idx = (currentIdx - 1 + playlist.length) % playlist.length;
     playTrack(idx);
   };
 
   const next = () => {
     let idx: number;
     if (shuffle) {
-      do { idx = Math.floor(Math.random() * PLAYLIST.length); } while (idx === currentIdx && PLAYLIST.length > 1);
+      do { idx = Math.floor(Math.random() * playlist.length); } while (idx === currentIdx && playlist.length > 1);
     } else {
-      idx = (currentIdx + 1) % PLAYLIST.length;
+      idx = (currentIdx + 1) % playlist.length;
     }
     playTrack(idx);
   };
@@ -221,19 +227,22 @@ export default function MusicPlayer() {
 
           {/* Правая — треклист */}
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-            {/* Фильтр по жанрам */}
-            <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-              {genres.map(g => (
-                <button key={g} onClick={() => setFilter(g)} style={{
-                  padding: "6px 16px", fontSize: "0.6rem", letterSpacing: "0.15rem",
-                  border: `1px solid ${filter === g ? gold : "rgba(201,168,76,0.2)"}`,
-                  background: filter === g ? "rgba(201,168,76,0.12)" : "transparent",
-                  color: filter === g ? gold : pale,
-                  cursor: "pointer", transition: "all 0.2s", fontFamily: "Raleway, sans-serif",
-                }}>
-                  {g.toUpperCase()}
-                </button>
-              ))}
+            {/* Фильтр по жанрам + кнопка загрузки */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "12px", flexWrap: "wrap" }}>
+              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                {genres.map(g => (
+                  <button key={g} onClick={() => setFilter(g)} style={{
+                    padding: "6px 16px", fontSize: "0.6rem", letterSpacing: "0.15rem",
+                    border: `1px solid ${filter === g ? gold : "rgba(201,168,76,0.2)"}`,
+                    background: filter === g ? "rgba(201,168,76,0.12)" : "transparent",
+                    color: filter === g ? gold : pale,
+                    cursor: "pointer", transition: "all 0.2s", fontFamily: "Raleway, sans-serif",
+                  }}>
+                    {g.toUpperCase()}
+                  </button>
+                ))}
+              </div>
+              <UploadTrack onUploaded={addTrack} nextId={playlist.length + 1} />
             </div>
 
             {/* Список треков */}
@@ -241,7 +250,7 @@ export default function MusicPlayer() {
               {filtered.map((track) => {
                 const isActive = track.id === current.id;
                 return (
-                  <div key={track.id} onClick={() => playTrack(PLAYLIST.indexOf(track))}
+                  <div key={track.id} onClick={() => playTrack(playlist.indexOf(track))}
                     style={{
                       display: "flex", alignItems: "center", gap: "12px",
                       padding: "12px 16px", cursor: "pointer",
