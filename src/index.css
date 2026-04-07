@@ -230,3 +230,34 @@
   font-size: 1.2rem;
   letter-spacing: 0.5rem;
 }
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes barPulse {
+  from {
+    transform: scaleY(0.5);
+    opacity: 0.6;
+  }
+  to {
+    transform: scaleY(1.3);
+    opacity: 1;
+  }
+}
+
+@keyframes radioRing {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
