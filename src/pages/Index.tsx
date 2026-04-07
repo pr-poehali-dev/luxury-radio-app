@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Icon from "@/components/ui/icon";
 import RadioPlayer from "@/components/RadioPlayer";
 import MusicPlayer from "@/components/MusicPlayer";
