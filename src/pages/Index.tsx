@@ -64,7 +64,7 @@ function SectionTitle({ label, title, subtitle }: { label: string; title: string
   );
 }
 
-const RADIO_URL = "https://stream.zeno.fm/yn65m0h1k08uv";
+const RADIO_URL = "http://uk4freenew.listen2myradio.com:23326/;";
 
 export default function Index() {
   const [menuOpen, setMenuOpen] = useState(false);
